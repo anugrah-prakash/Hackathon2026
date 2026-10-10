@@ -1,0 +1,44 @@
+/* Theme colors are also defined in .streamlit/config.toml for native widgets. */
+.stApp { background: #f7f8fc; color: #25314a; }
+[data-testid="stMainBlockContainer"] { max-width: 980px; padding-top: 2rem; }
+.amt-hero { display:flex; align-items:center; gap:18px; padding:38px; margin:0 0 22px;
+ background:linear-gradient(120deg,#eeebff 0%,#edf8f7 100%); border:1px solid #e0dff1;
+ border-radius:28px; overflow:hidden; }
+.amt-intro { flex: 1; }
+.amt-eyebrow { color:#6751b2; font-size:12px; font-weight:800; letter-spacing:2px; margin-bottom:16px; }
+.amt-hero h1 { color:#25314a; font-size:clamp(30px,4vw,44px); line-height:1.12; letter-spacing:-1.5px; padding:0; margin:0 0 16px; }
+.amt-hero h1 span { color:#6551b5; }
+.amt-hero p { color:#4d5b70; line-height:1.6; font-size:15px; }
+.amt-pill { display:inline-block; padding:8px 12px; border-radius:99px; color:#236658; background:#fff; font-size:12px; font-weight:600; }
+.amt-art { width:260px; flex-shrink:0; }
+.amt-art svg { width:100%; display:block; }
+.amt-letter { animation:amt-float 5s ease-in-out infinite; }
+.amt-envelope { animation:amt-float 5s ease-in-out infinite reverse; }
+.amt-steps { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:0 0 24px; }
+.amt-steps > div { padding:18px; background:white; border:1px solid #e3e6f0; border-radius:16px; }
+.amt-step-number { display:block; color:#6d51b5; font-weight:800; font-size:12px; margin-bottom:8px; }
+.amt-steps strong { display:block; font-size:14px; color:#25314a; }
+.amt-steps small { display:block; color:#536077; font-size:12px; margin-top:5px; }
+.amt-empty { text-align:center; border:1px dashed #b6afdb; border-radius:20px; padding:28px 16px; background:#f1effb; margin-top:20px; }
+.amt-empty-icon { margin:auto auto 12px; display:grid; place-items:center; background:#e4defa; color:#6551b5; width:58px; height:58px; border-radius:18px; font-size:32px; }
+.amt-empty p { color:#566079; margin:10px 0 0; font-size:14px; }
+.amt-processing { display:flex; align-items:center; gap:14px; padding:14px 18px; background:#e9e5fb; color:#51438b; border-radius:12px; margin:12px 0; }
+.amt-dots { display:flex; gap:5px; }
+.amt-dots i { width:7px; height:7px; border-radius:50%; background:#6751b2; animation:amt-pulse 1.2s ease-in-out infinite; }
+.amt-dots i:nth-child(2) { animation-delay:.15s; }
+.amt-dots i:nth-child(3) { animation-delay:.3s; }
+.amt-result-banner { display:flex; gap:16px; align-items:center; background:#e1f3ec; border:1px solid #b8dccc; border-radius:18px; padding:22px; margin:20px 0; animation:amt-appear .5s ease-out; color:#175e50; }
+.amt-result-banner > span { font-size:30px; }
+.amt-result-banner strong { display:block; font-size:20px; }
+.amt-result-banner small { display:block; margin-top:4px; }
+[data-testid="stFileUploader"] { border-radius:18px; }
+[data-testid="stVerticalBlockBorderWrapper"] { border-radius:16px; }
+.stButton button, .stDownloadButton button { border-radius:12px; transition:transform .15s ease, box-shadow .15s ease; }
+.stButton button:not(:disabled):hover, .stDownloadButton button:hover { transform:translateY(-2px); box-shadow:0 5px 15px #6551b51a; }
+[data-testid="stTextArea"] textarea { line-height:1.65; }
+@keyframes amt-float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-7px); } }
+@keyframes amt-pulse { 0%,80%,100% { opacity:.35; transform:translateY(0); } 40% { opacity:1; transform:translateY(-4px); } }
+@keyframes amt-appear { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+@media(max-width:640px) { .amt-hero { padding:24px; gap:8px; } .amt-art { width:125px; } .amt-hero h1 { font-size:30px; } .amt-steps { grid-template-columns:1fr; gap:8px; } .amt-steps > div { padding:12px 16px; } .amt-step-number { float:left; margin:3px 14px 18px 0; } .amt-pill { font-size:11px; } }
+@media(max-width:400px) { .amt-art { display:none; } }
+@media(prefers-reduced-motion:reduce) { .amt-letter,.amt-envelope,.amt-dots i,.amt-result-banner { animation:none; } .stButton button,.stDownloadButton button { transition:none; } }

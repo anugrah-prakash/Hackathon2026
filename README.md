@@ -1,4 +1,4 @@
-# Decoding the Amt — line-cited extraction update
+# Decoding the Amt — TrustedTokens edition
 
 ## Run
 
@@ -17,8 +17,8 @@ python -m pip install -r requirements.txt
 python -m streamlit run app.py
 ```
 
-Before launching, put your API key in `.env`. When updating an existing installation,
-keep your existing private `.env`. Stop the old process with Ctrl+C before restarting.
+Before launching, configure `.env` as shown below. When updating, migrate your key to the new
+TRUSTEDTOKENS_API_KEY name; old OPENAI_API_KEY settings are deliberately ignored. Stop the old process with Ctrl+C before restarting.
 
 ## Current pipeline
 
@@ -54,7 +54,7 @@ aid, not a legal decision system. Relative dates are not calculated. The model m
 not infer missing deadlines, amounts or penalties. Missing facts should prompt asking
 the sender. No outside legal knowledge is injected into the interpretation.
 
-Letter data is sent to OpenAI after consent. Requests use store=False; provider
+Letter data is sent to TrustedTokens after consent. Requests use store=False; provider
 retention rules still apply. The app keeps session data in memory without intentionally
 writing letter files or logging their text. Clearing the app is not secure memory
 erasure or deletion of provider records. Keep .env private. Public deployment requires
@@ -66,7 +66,7 @@ authentication, HTTPS, cost controls and a privacy/security review.
 python -m unittest discover -s tests -v
 ```
 
-32 offline tests pass, including legacy regressions and the new line-cited pipeline.
+37 offline tests pass, including legacy regressions and the new line-cited pipeline.
 Tests of model behavior use mocked responses: they do not establish live AI accuracy.
 The supplied Finanzamt PDF's native text extraction was tested directly. Live API and
 browser testing were not possible in the build environment.
@@ -75,3 +75,44 @@ For the supplied sample, expected content is: the office wants the 2025 tax retu
 submit online via ELSTER by 31 October 2026; if you believe filing is unnecessary,
 explain why in writing. Lateness may lead to a late fee, tax estimation and a threat
 of a coercive fine. The original letter specifies no penalty amount.
+
+## TrustedTokens setup
+
+The provider's documented base URL is `https://api.trustedtokens.eu/v1`.
+The app uses its documented OpenAI-compatible Responses endpoint and structured
+outputs. The `openai` Python package remains a client library; no OpenAI API key
+is required and requests are explicitly routed to TrustedTokens.
+
+Edit `.env`:
+
+```dotenv
+TRUSTEDTOKENS_API_KEY=your_actual_trustedtokens_key
+TRUSTEDTOKENS_MODEL=zai-org/GLM-5.3
+TRUSTEDTOKENS_VISION_MODEL=
+```
+
+The text model above is the example ID in the provider's documentation; select a
+model available to your account that supports structured output. To inspect IDs:
+
+```sh
+python list_models.py
+```
+
+For camera photos, image uploads and scanned PDFs, set TRUSTEDTOKENS_VISION_MODEL
+to an image-capable model ID from that catalog. The model-listing command prints
+architecture metadata when the provider supplies it. Do not assume the text model
+supports vision. If no vision model is configured, the app explains that requirement
+instead of sending images to an unsuitable text model. PDFs with usable text on
+every page do not need a vision model. API request compatibility does not imply
+that every hosted model supports every modality or structured output option.
+
+The included .env contains placeholders only. Never send your key in chat, commit it,
+or include your completed .env in a shared archive. Restart the app after editing it.
+Authentication and request errors now give provider-specific guidance without echoing
+private request bodies or keys. Provider retention policies still apply to store=False.
+
+Tests verify endpoint/key routing, configuration, and existing extraction behavior.
+There has been no live TrustedTokens request or account-specific model test.
+
+Provider documentation: https://trustedtokens.eu/docs/
+Model catalog: https://trustedtokens.eu/models/

@@ -4,7 +4,8 @@ import os
 from pathlib import Path
 import streamlit as st
 from dotenv import load_dotenv
-from openai import OpenAI, APIError
+from openai import APIError
+from provider import settings, make_client, api_error_message
 from core import transcribe, EvidenceError, ResponseFormatError
 from pipeline import analyze
 from documents import pages, embedded_text
@@ -46,18 +47,18 @@ except Exception:
 with st.expander('View the original letter', expanded=False):
     for i, img in enumerate(images, 1):
         st.image(img, caption=f'Page {i}')
-st.caption('Analysis sends your letter to the OpenAI API. This app keeps it in session memory, '
+st.caption('Analysis sends your letter to the TrustedTokens API. This app keeps it in session memory, '
            'does not write letters to disk, and requests store=False. Provider retention policies still apply.')
-consent = st.checkbox('I agree to send this letter to the OpenAI API.', key='consent')
-key = os.getenv('OPENAI_API_KEY', '').strip()
-ready = bool(key and key != 'your_api_key_here')
+consent = st.checkbox('I agree to send this letter to the TrustedTokens API.', key='consent')
+config = settings()
+ready = config.ready
 if not ready:
-    st.info('Add OPENAI_API_KEY to the .env file, then restart the app.')
-model = os.getenv('OPENAI_MODEL', 'gpt-4.1-mini')
+    st.info('Add TRUSTEDTOKENS_API_KEY to .env, check TRUSTEDTOKENS_MODEL, then restart the app.')
+model = config.model
 
 
 def client():
-    return OpenAI(api_key=key, timeout=90, max_retries=1)
+    return make_client(config)
 
 
 if st.button('1 · Read the letter', disabled=not (ready and consent), type='primary'):
@@ -67,11 +68,20 @@ if st.button('1 · Read the letter', disabled=not (ready and consent), type='pri
     try:
         with st.spinner('Reading the original wording…'):
             text_layer = embedded_text(raw)
-            st.session_state.text = text_layer if text_layer is not None else transcribe(client(), model, images)
+            if text_layer is not None:
+                st.session_state.text = text_layer
+            elif config.vision_model:
+                st.session_state.text = transcribe(client(), config.vision_model, images)
+            else:
+                raise EvidenceError('This file needs image transcription. Set TRUSTEDTOKENS_VISION_MODEL '
+                                    'to an image-capable model ID from your TrustedTokens account, then restart. '
+                                    'PDFs with usable embedded text do not need a vision model.')
     except ResponseFormatError as error:
         st.error(str(error))
-    except (APIError, EvidenceError):
-        st.error('Reading failed or was incomplete. Check your API settings, or try a clearer image.')
+    except APIError as error:
+        st.error(api_error_message(error))
+    except EvidenceError as error:
+        st.error(str(error))
     finally:
         activity.empty()
 if 'text' not in st.session_state:
@@ -107,8 +117,8 @@ if st.button('2 · Explain my next steps', type='primary', disabled=not (ready a
                 'made an extraction error. Every attempt must pass the same checks. '
                 'If the letter itself is unclear, ask the sender to clarify. '
                 'Do not change the transcription merely to make the check pass.')
-    except APIError:
-        st.error('The AI service could not complete the request. Check your API key, model access and quota, then retry.')
+    except APIError as error:
+        st.error(api_error_message(error))
     finally:
         activity.empty()
 answer = st.session_state.get('answer')
